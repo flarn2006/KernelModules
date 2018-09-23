@@ -5,6 +5,8 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 
+#define MODULE_NAME "errnodev"
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("flarn2006");
 MODULE_DESCRIPTION("Devices like /dev/full but for every error.");
@@ -28,7 +30,7 @@ static int __init errnodev_init(void)
 {
 	printk(KERN_INFO "errnodev: initializing\n");
 
-	majorNumber = register_chrdev(0, "errnodev", &fops);
+	majorNumber = register_chrdev(0, MODULE_NAME, &fops);
 	if (majorNumber < 0) {
 		printk(KERN_ALERT "errnodev: failed to register a major number\n");
 		return majorNumber;
@@ -42,7 +44,7 @@ static int __init errnodev_init(void)
 static void __exit errnodev_exit(void)
 {
 	printk(KERN_INFO "errnodev: exiting\n");
-	unregister_chrdev(majorNumber, "errnodev");
+	unregister_chrdev(majorNumber, MODULE_NAME);
 }
 
 static int dev_open(struct inode *inodep, struct file *filep)

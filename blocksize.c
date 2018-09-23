@@ -5,6 +5,8 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 
+#define MODULE_NAME "blocksize"
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("flarn2006");
 MODULE_DESCRIPTION("Character device that outputs block size used for reading");
@@ -30,24 +32,24 @@ static int __init blocksize_init(void)
 {
 	printk(KERN_INFO "blocksize: initializing\n");
 
-	majorNumber = register_chrdev(0, "blocksize", &fops);
+	majorNumber = register_chrdev(0, MODULE_NAME, &fops);
 	if (majorNumber < 0) {
 		printk(KERN_ALERT "blocksize: failed to register major number\n");
 		return majorNumber;
 	}
 	printk(KERN_INFO "blocksize: registered major number %d\n", majorNumber);
 
-	devClass = class_create(THIS_MODULE, "blocksize");
+	devClass = class_create(THIS_MODULE, MODULE_NAME);
 	if (IS_ERR(devClass)) {
-		unregister_chrdev(majorNumber, "blocksize");
+		unregister_chrdev(majorNumber, MODULE_NAME);
 		printk(KERN_ALERT "blocksize: failed to register device class\n");
 		return PTR_ERR(devClass);
 	}
 
-	dev = device_create(devClass, NULL, MKDEV(majorNumber, 0), NULL, "blocksize");
+	dev = device_create(devClass, NULL, MKDEV(majorNumber, 0), NULL, MODULE_NAME);
 	if (IS_ERR(dev)) {
 		class_destroy(devClass);
-		unregister_chrdev(majorNumber, "blocksize");
+		unregister_chrdev(majorNumber, MODULE_NAME);
 		printk(KERN_ALERT "blocksize: failed to create device\n");
 		return PTR_ERR(dev);
 	}
@@ -61,7 +63,7 @@ static void __exit blocksize_exit(void)
 	device_destroy(devClass, MKDEV(majorNumber, 0));
 	class_unregister(devClass);
 	class_destroy(devClass);
-	unregister_chrdev(majorNumber, "blocksize");
+	unregister_chrdev(majorNumber, MODULE_NAME);
 }
 
 static int dev_open(struct inode *inodep, struct file *filep)
