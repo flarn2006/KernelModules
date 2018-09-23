@@ -11,6 +11,8 @@ MODULE_DESCRIPTION("Character device that outputs block size used for reading");
 MODULE_VERSION("0.1");
 
 static int majorNumber;
+static struct class *devClass = NULL;
+static struct device *dev = NULL;
 
 static int dev_open(struct inode *, struct file *);
 static ssize_t dev_read(struct file *, char *, size_t, loff_t *);
@@ -30,10 +32,25 @@ static int __init blocksize_init(void)
 
 	majorNumber = register_chrdev(0, "blocksize", &fops);
 	if (majorNumber < 0) {
-		printk(KERN_ALERT "blocksize: failed to register a major number\n");
+		printk(KERN_ALERT "blocksize: failed to register major number\n");
 		return majorNumber;
 	}
 	printk(KERN_INFO "blocksize: registered major number %d\n", majorNumber);
+
+	devClass = class_create(THIS_MODULE, "blocksize");
+	if (IS_ERR(devClass)) {
+		unregister_chrdev(majorNumber, "blocksize");
+		printk(KERN_ALERT "blocksize: failed to register device class\n");
+		return PTR_ERR(devClass);
+	}
+
+	dev = device_create(devClass, NULL, MKDEV(majorNumber, 0), NULL, "blocksize");
+	if (IS_ERR(dev)) {
+		class_destroy(devClass);
+		unregister_chrdev(majorNumber, "blocksize");
+		printk(KERN_ALERT "blocksize: failed to create device\n");
+		return PTR_ERR(dev);
+	}
 
 	return 0;
 }
@@ -41,6 +58,9 @@ static int __init blocksize_init(void)
 static void __exit blocksize_exit(void)
 {
 	printk(KERN_INFO "blocksize: exiting\n");
+	device_destroy(devClass, MKDEV(majorNumber, 0));
+	class_unregister(devClass);
+	class_destroy(devClass);
 	unregister_chrdev(majorNumber, "blocksize");
 }
 
