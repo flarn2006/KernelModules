@@ -34,6 +34,7 @@ static int __init errnodev_init(void)
 		return majorNumber;
 	}
 	printk(KERN_INFO "errnodev: registered major number %d\n", majorNumber);
+	printk(KERN_INFO "errnodev: please note: devices must be created manually using mknod.\n");
 
 	return 0;
 }
@@ -51,7 +52,6 @@ static int dev_open(struct inode *inodep, struct file *filep)
 
 static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
-	printk(KERN_DEBUG "errnodev: i_rdev=%d, MINOR(i_rdev)=%d\n", filep->f_inode->i_rdev, MINOR(filep->f_inode->i_rdev));
 	return -(signed)MINOR(filep->f_inode->i_rdev);
 }
 
