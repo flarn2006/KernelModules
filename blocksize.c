@@ -30,19 +30,19 @@ static struct file_operations fops = {
 
 static int __init blocksize_init(void)
 {
-	printk(KERN_INFO "blocksize: initializing\n");
+	printk(KERN_INFO MODULE_NAME ": initializing\n");
 
 	majorNumber = register_chrdev(0, MODULE_NAME, &fops);
 	if (majorNumber < 0) {
-		printk(KERN_ALERT "blocksize: failed to register major number\n");
+		printk(KERN_ALERT MODULE_NAME ": failed to register major number\n");
 		return majorNumber;
 	}
-	printk(KERN_INFO "blocksize: registered major number %d\n", majorNumber);
+	printk(KERN_INFO MODULE_NAME ": registered major number %d\n", majorNumber);
 
 	devClass = class_create(THIS_MODULE, MODULE_NAME);
 	if (IS_ERR(devClass)) {
 		unregister_chrdev(majorNumber, MODULE_NAME);
-		printk(KERN_ALERT "blocksize: failed to register device class\n");
+		printk(KERN_ALERT MODULE_NAME ": failed to register device class\n");
 		return PTR_ERR(devClass);
 	}
 
@@ -50,7 +50,7 @@ static int __init blocksize_init(void)
 	if (IS_ERR(dev)) {
 		class_destroy(devClass);
 		unregister_chrdev(majorNumber, MODULE_NAME);
-		printk(KERN_ALERT "blocksize: failed to create device\n");
+		printk(KERN_ALERT MODULE_NAME ": failed to create device\n");
 		return PTR_ERR(dev);
 	}
 
@@ -59,7 +59,7 @@ static int __init blocksize_init(void)
 
 static void __exit blocksize_exit(void)
 {
-	printk(KERN_INFO "blocksize: exiting\n");
+	printk(KERN_INFO MODULE_NAME ": exiting\n");
 	device_destroy(devClass, MKDEV(majorNumber, 0));
 	class_unregister(devClass);
 	class_destroy(devClass);

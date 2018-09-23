@@ -28,22 +28,22 @@ static struct file_operations fops = {
 
 static int __init errnodev_init(void)
 {
-	printk(KERN_INFO "errnodev: initializing\n");
+	printk(KERN_INFO MODULE_NAME ": initializing\n");
 
 	majorNumber = register_chrdev(0, MODULE_NAME, &fops);
 	if (majorNumber < 0) {
-		printk(KERN_ALERT "errnodev: failed to register a major number\n");
+		printk(KERN_ALERT MODULE_NAME ": failed to register a major number\n");
 		return majorNumber;
 	}
-	printk(KERN_INFO "errnodev: registered major number %d\n", majorNumber);
-	printk(KERN_INFO "errnodev: please note: devices must be created manually using mknod.\n");
+	printk(KERN_INFO MODULE_NAME ": registered major number %d\n", majorNumber);
+	printk(KERN_INFO MODULE_NAME ": please note: devices must be created manually using mknod.\n");
 
 	return 0;
 }
 
 static void __exit errnodev_exit(void)
 {
-	printk(KERN_INFO "errnodev: exiting\n");
+	printk(KERN_INFO MODULE_NAME ": exiting\n");
 	unregister_chrdev(majorNumber, MODULE_NAME);
 }
 
